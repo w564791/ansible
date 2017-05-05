@@ -24,21 +24,21 @@
        - stop tomcat
        - check tomcat
        - start tomcat
-   - name: get pid 8080
+   - name: get tomcat_port {{port_8080}} pid
      shell: >
-       ps -ef|grep -w 8080|grep -v grep|awk '{print $2}'
+       ps -ef|grep -w "{{port_8080}}"|grep -v grep|awk '{print $2}'
      register: pid_8080
      failed_when: pid_8080 is undefined
 
-   - name: get pid 18080
+   - name: get tomcat_port {{port_18080}}  pid
      shell: >
-       ps -ef|grep -w 18080|grep -v grep|awk '{print $2}'
+       ps -ef|grep -w "{{port_18080}}"|grep -v grep|awk '{print $2}'
      register: pid_18080
      failed_when: pid_18080 is undefined
 
-   - name: get pid 28080
+   - name: get tomcat_port {{port_28080}} pid
      shell: >
-       ps -ef|grep -w 28080|grep -v grep|awk '{print $2}'
+       ps -ef|grep -w "{{port_28080}}"|grep -v grep|awk '{print $2}'
      register: pid_28080
      failed_when: pid_28080 is undefined
 
