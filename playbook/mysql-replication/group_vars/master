@@ -9,4 +9,4 @@ mysql_databases:
    replicate: 0
 replication_priv: "*.*:REPLICATION SLAVE,REPLICATION CLIENT"
 mysql_replication_user: 'slave'
-mysql_replication_pass: 'Yoyousoft007@'
+mysql_replication_pass: 'Jinjiaxyz007@'
