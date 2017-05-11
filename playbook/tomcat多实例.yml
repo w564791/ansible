@@ -45,11 +45,11 @@
   handlers:
    - name: stop tomcat
      shell: |
-       /opt/tomcat-webserices-"{{item}}"/bin/startup.sh   stop -force
+       kill -15 "{{ item }}"
      with_items:
-       - "{{ port_8080 }}"
-       - "{{ port_18080 }}"
-       - "{{ port_28080 }}"
+       - "{{ pid_28080.stdout }}"
+       - "{{ pid_18080.stdout }}"
+       - "{{ pid_8080.stdout }}"
    - name: check tomcat
      wait_for:
        host: localhost
