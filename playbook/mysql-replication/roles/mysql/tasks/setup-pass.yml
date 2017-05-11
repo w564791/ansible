@@ -1,0 +1,20 @@
+---
+- name: ensure mysql-server started
+  systemd:
+   name: mysqld
+   state: started
+   enabled: yes
+- name: check install tempfile exist
+  stat:
+   path: "{{mysql_datadir}}/install_tmpfile_dont_remove"
+  register: install_tmp_file
+- name: ensure skip-grant-tables in conf
+  shell: |
+    tail -100 "{{mysql_log_error}}"|grep password|awk '{print $NF}'
+  register: init_pass
+  when: not install_tmp_file.stat.exists
+- name: set password about use skip-grant-tables
+  shell: |
+   mysql -uroot -p"{{init_pass.stdout}}" --connect-expired-password -e "alter user 'root'@'localhost' identified by '{{root_password}}';"
+   touch "{{mysql_datadir}}/install_tmpfile_dont_remove"
+  when:  init_pass is defined and not install_tmp_file.stat.exists

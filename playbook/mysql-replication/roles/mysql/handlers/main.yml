@@ -1,0 +1,3 @@
+---
+- include: restart-mysql.yml
+- include: reloadfirewalld.yml

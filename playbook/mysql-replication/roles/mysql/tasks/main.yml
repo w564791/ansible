@@ -1,0 +1,6 @@
+---
+- include: setup-firewalld.yml
+- include: setup-install.yml
+- include: setup-copy-conf.yml
+- include: setup-pass.yml
+- include: replication.yml
