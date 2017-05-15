@@ -2,7 +2,7 @@
 - name: create replication user
   mysql_user:
    name: "{{mysql_replication_user|default('slave')}}"
-   password: "{{mysql_replication_pass|default('Jinjiaxyz007@')}}"
+   password: "{{mysql_replication_pass|default('Yoyousoft007@')}}"
    host: "{{item|default('%')}}"
    priv: "{{ replication_priv|default('*.*:USAGE') }}"
    login_user: root
@@ -33,7 +33,7 @@
     login_password: "{{ root_password }}"
     master_host: '{{ groups["master"][0] }}'
     master_user: '{{ mysql_replication_user|default("slave") }}'
-    master_password: '{{ mysql_replication_pass|default("Jinjiaxyz007@") }}'
+    master_password: '{{ mysql_replication_pass|default("Yoyousoft007@") }}'
     master_log_file: '{{ master_status.File }}'
     master_log_pos: '{{ master_status.Position }}'
   ignore_errors: True

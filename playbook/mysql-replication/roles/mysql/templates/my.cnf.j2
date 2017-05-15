@@ -21,7 +21,8 @@ general_log = ON
 general_log_file = {{ mysql_log }}
 log-error = {{ mysql_log_error }}
 {% endif %}
-
+character-set-server={{ character_set_server }}
+collation-server={{ collation_server }}
 {% if mysql_slow_query_log_enabled %}
 # Slow query log configuration.
 slow_query_log = 1

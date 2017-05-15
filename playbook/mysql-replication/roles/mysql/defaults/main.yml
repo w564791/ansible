@@ -7,6 +7,8 @@ skip_name_resolve: True
 skip_grant_tables: False
 mysql_log_error: /var/lib/mysql/mysqld_error.log
 mysql_log: /var/lib/mysql/mysqld.log
+character_set_server: utf8
+collation_server: utf8_general_ci
 mysql_slow_query_log_enabled: True
 mysql_slow_query_log_file: /var/lib/mysql/mysqld_slow.log
 mysql_slow_query_time: 3
