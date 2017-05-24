@@ -5,4 +5,4 @@
    state: enabled
    zone: public
    permanent: true
-  notify: reload firewalld
+- include: reloadfirewalld.yml
