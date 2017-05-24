@@ -1,0 +1,11 @@
+[master]
+mongo-1 ansible_host=192.168.103.129
+[slave]
+mongo-2 ansible_host=192.168.103.130
+mongo-3 ansible_host=192.168.103.131
+[mongocluster:children]
+slave
+master
+[mongocluster:vars]
+
+

@@ -1,0 +1,8 @@
+---
+- name: set firewalld
+  firewalld:
+   port: "{{ mongo_port }}/tcp"
+   state: enabled
+   zone: public
+   permanent: true
+  notify: reload firewalld

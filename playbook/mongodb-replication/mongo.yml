@@ -1,0 +1,5 @@
+---
+- name: mongo replication
+  hosts: mongocluster
+  roles:
+   - {role: mongodb, when: ansible_os_family == 'RedHat'}

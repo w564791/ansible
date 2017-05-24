@@ -1,0 +1,15 @@
+---
+db_path: /opt/mongodb
+log_path: /opt/mongodb/mongod.log
+logappend: 'true'
+bind_ip: 0.0.0.0
+db_auth: 'enabled'
+http_interface: 'true'
+oplog_size: 20480
+repl_set: kingstest
+key_file: /etc/mongodb/mongodb-keyfile
+mongo_port: 27017
+admin_user: root
+admin_pass: sogoodtea
+fork_status: 'true'
+pid_path: /opt/mongodb/mongod.pid
