@@ -1,7 +1,5 @@
 ---
 - include: setup-install.yml
   when: ansible_os_family == 'RedHat'
-- include: setup-firewall.yml
-  when: ansible_os_family == 'RedHat'
 - include: setup-replication.yml
   when: ansible_os_family == 'RedHat'

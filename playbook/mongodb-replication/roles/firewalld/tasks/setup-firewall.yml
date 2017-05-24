@@ -1,0 +1,14 @@
+---
+- name: vars debug
+  debug:
+   var=firewall_open_port
+- name: set firewalld
+  firewalld:
+   port: "{{ item.port }}/tcp"
+   state: enabled
+   zone: public
+   permanent: true
+  with_items:
+   - "{{ firewall_open_port }}"
+  notify:
+   - reload firewalld

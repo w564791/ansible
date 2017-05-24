@@ -13,3 +13,8 @@ admin_user: root
 admin_pass: sogoodtea
 fork_status: 'true'
 pid_path: /opt/mongodb/mongod.pid
+firewall_open_port:
+  - name: mongo
+    port: 27016
+  - name: mysql
+    port: 3306
