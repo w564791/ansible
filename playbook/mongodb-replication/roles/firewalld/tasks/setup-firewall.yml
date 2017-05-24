@@ -1,7 +1,4 @@
 ---
-- name: vars debug
-  debug:
-   var=firewall_open_port
 - name: set firewalld
   firewalld:
    port: "{{ item.port }}/tcp"
