@@ -17,9 +17,12 @@ firewall_open_port:
   - name: mongo
     port: "{{ mongo_port }}"
     source: 192.168.103.0/24
+    protocol: 'tcp'
   - name: mysql
     port: 3306
     source: 192.168.103.0/24
+    protocol: 'tcp'
   - name: ssh
     port: 22
     source: 0.0.0.0/0
+    protocol: 'tcp'

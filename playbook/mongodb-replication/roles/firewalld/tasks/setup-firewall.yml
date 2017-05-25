@@ -1,9 +1,10 @@
 ---
 - name: set firewalld
   firewalld:
-   port: "{{ item.port }}/tcp"
+   port: "{{ item.port }}/{{ item.protocol }}"
    state: enabled
    zone: public
+   source: "{{ item.source }}"
    permanent: true
   with_items:
    - "{{ firewall_open_port }}"
