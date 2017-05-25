@@ -1,14 +1,4 @@
 ---
-- name: unarchive file to remote hosts
-  unarchive:
-   src: mongodb-linux-x86_64-rhel70-3.4.4.tar
-   dest: /usr/local/
-   creates: /usr/local/mongodb-linux-x86_64-rhel70-3.4.4
-- name: links files
-  file:
-   src: /usr/local/mongodb-linux-x86_64-rhel70-3.4.4
-   dest: /usr/local/mongodb
-   state: link
 - name: set env
   copy:
    src: mongo.sh

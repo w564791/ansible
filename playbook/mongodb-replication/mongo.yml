@@ -2,7 +2,7 @@
 - name: firewalld setting
   hosts: mongocluster
   roles:
-   - {role: firewalld, when: ansible_os_family == 'RedHat'}
+   - {role: firewalld}
 - name: sysctl setting
   hosts: all
   roles:
@@ -10,4 +10,4 @@
 - name: mongo replication
   hosts: mongocluster
   roles:
-   - {role: mongodb, when: ansible_os_family == 'RedHat'}
+   - {role: mongodb}
