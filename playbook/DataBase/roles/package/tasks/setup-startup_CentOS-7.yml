@@ -1,0 +1,19 @@
+---
+- name: issue some package stop and disabled
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - "{{ disabled_package_on_CentOS7 }}"
+- name: template file to remote hosts
+  template:
+    src: ssh.local.j2
+    dest: /etc/fail2ban/jail.d/ssh.local
+  notify:
+    - restart fail2ban
+- name:  start fail2ban
+  systemd:
+    name:  fail2ban
+    state: started
+    enabled: yes

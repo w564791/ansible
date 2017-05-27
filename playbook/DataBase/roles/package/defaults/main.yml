@@ -1,0 +1,15 @@
+---
+install_with_package:
+  - name: fail2ban-all
+    version: 0.9.6-3
+  - name: vim
+    version: last
+maxretry: 2
+ignoreip: '127.0.0.1/8'
+findtime: 10
+disabled_package_on_CentOS7:
+#  - cups.path
+#  - bluetooth
+#  - cups
+  - postfix
+#  - cups.socket

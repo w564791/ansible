@@ -1,0 +1,10 @@
+[sshd]
+enabled = true
+port    = ssh
+backend = %(sshd_backend)s
+logpath = /var/log/secure
+filter   = sshd
+action = firewallcmd-ipset
+maxretry = {{ maxretry }}
+ignoreip = {{ ignoreip }}
+findtime = {{ findtime }}

@@ -1,0 +1,43 @@
+---
+- name:  vim syntax on
+  copy:
+   src: vimrc
+   dest: /root/.vimrc
+- name: PASS_MIN_LEN modify
+  lineinfile:
+    path: /etc/login.defs
+    regexp: "PASS_MIN_LEN.*"
+    line: "PASS_MIN_LEN 10"
+    backup: yes
+- name: delete some users
+  user:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - adm
+    - lp
+    - sync
+    - operator
+    - games
+    - postfix
+    - ftp
+- name: copy limits.conf to remote hosts
+  copy:
+    src: limits.conf
+    dest: /etc/security/
+- name: modify history size
+  lineinfile:
+    path: /etc/profile
+    regexp: "HISTSIZE=.*"
+    line: "HISTSIZE=300"
+    backup: yes
+- name: Setting a password requires at least 2 special characters
+  lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: ".*ocredit.*"
+    line: "ocredit -2"
+    backup: yes
+- name: modify bashrc file
+  copy:
+    src: bashrc
+    dest: /root/.bashrc
