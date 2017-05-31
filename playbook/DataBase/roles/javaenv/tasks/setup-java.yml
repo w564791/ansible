@@ -1,0 +1,16 @@
+---
+- name: copy file to remote hosts
+  copy:
+    src: jdk-8u121-linux-x64.tar
+    dest: /usr/local/
+  creates: /usr/local/jdk-8u121-linux-x64
+- name: set file link
+  file:
+    src: /usr/local/jdk-8u121-linux-x64
+    dest: /usr/local/java
+    state: link
+- name: set java env
+  copy:
+    src: java.sh
+    dest: /etc/profile.d/
+    

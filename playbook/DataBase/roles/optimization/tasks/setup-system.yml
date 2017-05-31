@@ -37,7 +37,12 @@
     regexp: ".*ocredit.*"
     line: "ocredit -2"
     backup: yes
-- name: modify bashrc file
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+- name: modify envi
   copy:
-    src: bashrc
-    dest: /root/.bashrc
+    src: env.sh
+    dest: /etc/profile.d/
+- name: modify nameserver
+  template:
+    src: nameserver.conf.j2
+    dest: /etc/resolv.conf

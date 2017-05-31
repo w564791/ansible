@@ -7,14 +7,11 @@
   hosts: mongocluster
   roles:
    - {role: firewalld}
-- name: sysctl setting
+- name: optimization
   hosts: all
   roles:
    - {role: optimization}
-- name: mongo replication
-  hosts: mongocluster
-  roles:
-   - {role: mongodb}
+
 #- name: master
 #  hosts: mysqlclusters
 #  roles:

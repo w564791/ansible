@@ -1,0 +1,21 @@
+---
+- name: package install and stop some package
+  hosts: all
+  roles:
+    - {role: package}
+- name: firewalld setting
+  hosts: mongocluster
+  roles:
+   - {role: firewalld}
+- name: optimization
+  hosts: all
+  roles:
+   - {role: optimization}
+- name: mongo replication
+  hosts: mongocluster
+  roles:
+   - {role: mongodb}
+#- name: master
+#  hosts: mysqlclusters
+#  roles:
+#    - {role: mysql, when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7' }
