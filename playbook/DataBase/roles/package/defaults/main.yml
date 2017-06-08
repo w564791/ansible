@@ -11,6 +11,20 @@ install_with_package:
     version: last
   - name: epel-release
     version: last
+  - name: atop
+    version: last
+  - name: sysstat
+    version: last
+  - name: lsof
+    version: last
+  - name: htop
+    version: last
+  - name: iotop
+    version: last
+  - name: "procps-ng"
+    version: last
+  - name: git
+    version: last
 #####install package on ubuntu#####
 install_with_package_ubuntu:
   - name: fail2ban
@@ -18,6 +32,18 @@ install_with_package_ubuntu:
   - name: vim
     version: last
   - name: gvfs-bin
+    version: last
+  - name: atop
+    version: last
+  - name: htop
+    version: last
+  - name: iotop
+    version: last
+  - name: lsof
+    version: last
+  - name: sysstat
+    version: last
+  - name: git
     version: last
 ##################################
 maxretry: 2
