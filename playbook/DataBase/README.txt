@@ -2,7 +2,7 @@
 
 可以重复执行,某些只能运行一次的都会创建锁文件,锁文件被删除后可能会报错
 
-兼容CentOS7,CentOS6,Ubuntu 14.04
+mongoDB部署兼容CentOS7,CentOS6,Ubuntu 14.04
 
 mongodb下载地址:
 CentOS7
