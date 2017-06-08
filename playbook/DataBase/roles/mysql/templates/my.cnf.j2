@@ -56,6 +56,7 @@ read_only
 server-id = {{mysql_slave_id}}
 relay-log = relay-bin
 relay-log-index = relay-bin.index
+relay-log-recovery = {{ relay_log_recovery }}
 {% endif %}
 {% endif %}
 
@@ -102,5 +103,3 @@ innodb_log_file_size = {{ mysql_innodb_log_file_size }}
 innodb_log_buffer_size = {{ mysql_innodb_log_buffer_size }}
 innodb_flush_log_at_trx_commit = {{ mysql_innodb_flush_log_at_trx_commit }}
 innodb_lock_wait_timeout = {{ mysql_innodb_lock_wait_timeout }}
-
-

@@ -5,6 +5,7 @@ mysql_bind_address: 0.0.0.0
 mysql_datadir: /var/lib/mysql
 skip_name_resolve: True
 skip_grant_tables: False
+relay_log_recovery: "ON"
 mysql_log_error: /var/lib/mysql/mysqld_error.log
 mysql_log: /var/lib/mysql/mysqld.log
 character_set_server: utf8
