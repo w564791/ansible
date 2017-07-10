@@ -13,6 +13,8 @@
    - name:
      get_url:
       url: http://xxxx:18080/support_bin/chiq_webservice.war
+      url_username: xxxx
+      url_password: xxxxx
       dest: "/opt/tomcat-webserices-{{ item }}/webapps/"
       force: yes
       backup: yes
