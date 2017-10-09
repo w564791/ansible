@@ -46,3 +46,17 @@
   template:
     src: nameserver.conf.j2
     dest: /etc/resolv.conf
+- name: modify sudoer requiretty
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^Defaults.*requiretty'
+    line: '#Defaults    requiretty'
+- name: modify sudoer visiblepw
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^Defaults.*visiblepw'
+    line: '#Defaults   visiblepw'
+- name: modify sudoer user
+  template:
+    src: own.j2
+    dest: /etc/sudoers.d/
