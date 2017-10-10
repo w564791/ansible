@@ -59,4 +59,4 @@
 - name: modify sudoer user
   template:
     src: own.j2
-    dest: /etc/sudoers.d/
+    dest: /etc/sudoers.d/own

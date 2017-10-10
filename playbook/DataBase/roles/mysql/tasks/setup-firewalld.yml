@@ -1,11 +1,11 @@
 ---
-- name: set master firewalld
-  firewalld:
-    source: "{{item}}"
-    port: 3306/tcp
-    permanent: true
-    state: enabled
-  when: mysql_replication_role == 'master'
-  with_items: "{{groups['slave']}}"
-  notify:
-   - reload firewalld
+#- name: set master firewalld
+#  firewalld:
+#    source: "{{item}}"
+#    port: 3306/tcp
+#    permanent: true
+#    state: enabled
+#  when: mysql_replication_role == 'master'
+#  with_items: "{{groups['slave']}}"
+#  notify:
+#   - reload firewalld
