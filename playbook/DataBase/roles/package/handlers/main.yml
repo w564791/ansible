@@ -1,9 +1,0 @@
----
-- name: systemd restart fail2ban
-  systemd:
-    name: fail2ban
-    state: restarted
-- name: service restart fail2ban
-  service:
-    name: fail2ban
-    state: restarted

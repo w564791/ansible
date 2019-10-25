@@ -1,0 +1,14 @@
+---
+- name: install MySQL repo
+  yum:
+   name: https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
+   state: present
+   update_cache: yes
+- name: install MySQL packege
+  yum:
+   name: "{{ item }}"
+   state: present
+  with_items:
+   - mysql-server
+   - MySQL-python
+

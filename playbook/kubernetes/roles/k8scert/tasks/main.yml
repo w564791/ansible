@@ -1,0 +1,4 @@
+---
+- include: init-cfssl.yml
+- include: init-sa-keypair.yml
+- include: init-k8s-cert.yml

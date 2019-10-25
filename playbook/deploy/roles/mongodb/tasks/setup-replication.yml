@@ -1,0 +1,42 @@
+---
+- name: issue configure file exist
+  stat:
+   path: /etc/mongodb/mongo.conf
+  register: mongo_conf_file
+- name: issue pid file exist
+  stat:
+   path: /opt/mongodb/mongod.pid
+  register: mongo_pid_file
+- name: issue init file exist
+  stat:
+   path: /opt/mongodb/data/init_file_dont_remove
+  register: mongo_init_file
+- name: issue auth.js file exist
+  stat: 
+   path: /opt/mongodb/data/auth.js
+  register: mongo_auth_file
+- name: issue /opt/mongodb/data/init_replacation file exist
+  stat:
+   path: /opt/mongodb/data/init_replacation
+  register: init_replacation
+- name: start mongodb
+  shell: |
+   /usr/local/mongodb/bin/mongod -f /etc/mongodb/mongo.conf
+  when: mongo_conf_file.stat.exists == true    and  mongo_pid_file.stat.exists == false
+
+- name: cluster init
+  shell: |
+   /usr/local/mongodb/bin/mongo < /opt/mongodb/data/auth.js
+   touch /opt/mongodb/data/init_file_dont_remove
+    sleep 5
+  when: mongo_auth_file.stat.exists == true and mongo_init_file.stat.exists == false and mongo_master is defined
+- name: issue init successed
+  shell: |
+   /usr/local/mongodb/bin/mongo  --quiet --eval 'rs.isMaster()' | grep  ismaster|grep -oP true
+   touch /opt/mongodb/data/init_replacation
+  register: mongo_master_status
+  when: mongo_master  is defined
+- name: create admin user and add replication
+  shell:
+    /usr/local/mongodb/bin/mongo  < /opt/mongodb/data/replication.js
+  when: mongo_master is  defined and mongo_master_status.stdout == 'true' and init_replacation.stat.exists == false

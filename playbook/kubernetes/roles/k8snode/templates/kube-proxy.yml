@@ -1,0 +1,10 @@
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+clientConnection:
+  kubeconfig: /etc/kubernetes/kube-proxy.kubeconfig
+clusterCIDR: {{service_range}}
+OOMScoreAdj: -999
+PortRange : "{{svc_portrange}}"
+healthzBindAddress: 127.0.0.1:10256
+kind: KubeProxyConfiguration
+metricsBindAddress: 127.0.0.1:10249
+mode: {{svc_mode}}

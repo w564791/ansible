@@ -1,5 +1,0 @@
----
-- include: setup-system.yml
-- include: setup-sysctl.yml
-#  when: ( ansible_distribution == 'Ubuntu' and ansible_distribution_version == '14.04')
-#        or ( ansible_os_family == 'RedHat'   and ansible_distribution_major_version == '7' )

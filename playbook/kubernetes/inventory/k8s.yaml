@@ -1,0 +1,14 @@
+---
+- name: certficate install
+  host: local
+  roles:
+  - {role: certficate}
+- name: master install
+  hosts: master
+  roles:
+    - {role: etcd}
+    - {role: master}
+- name: node install
+  hosts: node
+  roles:
+   - {role: node}

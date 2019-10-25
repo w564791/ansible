@@ -1,0 +1,4 @@
+---
+- include: setup-copy-file.yml
+- include: setup-install.yml
+- include: setup-replication.yml

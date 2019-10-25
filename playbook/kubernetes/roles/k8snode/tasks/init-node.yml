@@ -1,0 +1,93 @@
+---
+- name: translate certificate files
+  copy:
+    src: /opt/ssl
+    dest: /etc/kubernetes/
+  notify:
+  - "restart kubelet"
+  - "restart kube-proxy"
+- name: create workdir
+  file:
+   path: "{{item}}"
+   state: directory
+  with_items:
+  - /var/lib/kubelet
+  - /var/log/k8s
+  - /etc/kubernetes
+  - /opt/cni
+  - /opt/yaml
+- name: unarchive node files
+  unarchive:
+    src: kubernetes-node.tar.gz
+    dest: /opt/
+- name: copy kube-proxy (service|config) files
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "kube-proxy.service",dest: '/lib/systemd/system/'}
+  - { src: "kube-proxy.yml",dest: "/etc/kubernetes/"}
+  - { src: "kube-proxy.kubeconfig",dest: "/etc/kubernetes/"}
+  - { src: "calico.yaml",dest: "/opt/yaml/"}
+  notify:
+  - "restart kube-proxy"
+- name: copy kubelet (service|config) files
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "kubelet.service",dest: '/lib/systemd/system/'}
+  - { src: "bootstrap.kubeconfig",dest: '/etc/kubernetes/'}
+  - { src: "kubelet.yml",dest: "/etc/kubernetes/"}
+  notify:
+  - "restart kubelet"
+- name: create certificatesigningrequests cluster role
+  shell: |
+   kubectl create clusterrolebinding kubelet-bootstrap   --clusterrole=system:node-bootstrapper   --user=kubelet-bootstrap
+   touch /var/run/clusterrolebinding.kubelet-bootstrap
+  run_once: true
+  args:
+   creates: /var/run/clusterrolebinding.kubelet-bootstrap
+- name: start kubelet.service
+  systemd:
+   name: kubelet
+   state: started
+   enabled: yes
+   daemon_reload: yes
+- name: init calico network plugin
+  shell: |
+   kubectl apply -f /opt/yaml/calico.yaml
+  run_once: true
+  when: inventory_hostname in groups['master']
+  args:
+   creates: /var/run/calico_install.file
+- name: create caolico lock file
+  file:
+    path: /var/run/calico_install.file
+  when: inventory_hostname in groups['master']
+- name: wait for kubelet started
+  wait_for:
+   port: 10250
+   host: "{{ansible_ssh_host}}"
+- name: start kube-proxy.service
+  systemd:
+   name: kube-proxy
+   state: started
+   enabled: yes
+   daemon_reload: yes
+- name: wait for kube-proxy started
+  wait_for:
+   port: 10249
+   host: 127.0.0.1
+- name: translate coreDNS deploy file
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "coredns.yml", dest: "/opt/yaml/"}
+  when: inventory_hostname in groups['master']
+- name: deploy coreDNS 
+  shell: |
+   kubectl apply -f /opt/yaml/coredns.yml
+  run_once: true
+  when: inventory_hostname in groups['master']

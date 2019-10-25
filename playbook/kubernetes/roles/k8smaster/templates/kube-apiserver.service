@@ -1,0 +1,45 @@
+[Unit]
+Description=Kubernetes API Service
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+After=etcd.service
+[Service]
+ExecStart={{binary_home}}kube-apiserver \
+--logtostderr=false --log-dir={{k8s_log_dir}} -v={{log_level}} --allow-privileged=true \
+--bind-address={{ansible_ssh_host}} --secure-port=6443  --insecure-bind-address=127.0.0.1 --insecure-port=8080\
+--etcd-servers={% for master in groups['master'] %}{% if not loop.last %}https://{{ hostvars[master].ansible_host }}:2379,{% else %}https://{{ hostvars[master].ansible_host }}:2379 \
+{% endif %}
+{% endfor %}
+--service-cluster-ip-range={{service_range}} --kubelet-https=true --service-node-port-range={{svc_portrange}}  \
+--enable-admission-plugins={{enable_admission_plugins}} \
+--authorization-mode=Node,RBAC \
+--enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv \
+--enable-garbage-collector \
+--tls-cert-file={{cert_path}}kubernetes.pem \
+--tls-private-key-file={{cert_path}}kubernetes-key.pem \
+--client-ca-file={{cert_path}}ca.pem \
+--kubelet-client-certificate={{cert_path}}kubernetes.pem \
+--kubelet-client-key={{cert_path}}kubernetes-key.pem \
+--service-account-key-file={{cert_path}}sa.pub \
+--requestheader-client-ca-file={{cert_path}}ca.pem \
+--proxy-client-cert-file={{cert_path}}kube-proxy.pem \
+--proxy-client-key-file={{cert_path}}kube-proxy-key.pem \
+--requestheader-extra-headers-prefix=X-Remote-Extra- \
+--requestheader-group-headers=X-Remote-Group \
+--requestheader-username-headers=X-Remote-User \
+--requestheader-allowed-names=system:kube-proxy \
+--etcd-cafile={{cert_path}}ca.pem \
+--etcd-certfile={{cert_path}}kubernetes.pem \
+--etcd-keyfile={{cert_path}}kubernetes-key.pem \
+--apiserver-count=1  \
+--storage-backend=etcd3 
+#if no kube-proxy in node next must in used
+#--enable-aggregator-routing=true \
+#--requestheader-allowed-names=metrics-server,admin,system:kube-proxy \
+Restart=always
+Type=notify
+LimitNOFILE=65536
+TimeoutSec=900
+[Install]
+WantedBy=multi-user.target
+

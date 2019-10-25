@@ -1,0 +1,31 @@
+{
+    "CN": "kubernetes",
+    "hosts": [
+      "127.0.0.1",
+      {%for node in groups['master']%}
+      "{{hostvars[node].ansible_host}}",
+      {%endfor%}
+      {%for lb in groups['loadblances']%}
+      "{{hostvars[lb].ansible_host}}",
+      {%endfor%}
+      "{{service_range.split('.')[0:3]|join('.')}}.1",
+      "kubernetes",
+      "kubernetes.default",
+      "kubernetes.default.svc",
+      "kubernetes.default.svc.cluster",
+      "kubernetes.default.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "ST": "BeiJing",
+            "L": "BeiJing",
+            "O": "k8s",
+            "OU": "System"
+        }
+    ]
+}

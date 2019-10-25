@@ -1,0 +1,47 @@
+---
+- name: create replication user
+  mysql_user:
+   name: "{{mysql_replication_user|default('slave')}}"
+   password: "{{mysql_replication_pass|default('Yoyousoft007@')}}"
+   host: "{{item|default('%')}}"
+   priv: "{{ replication_priv|default('*.*:USAGE') }}"
+   login_user: root
+   login_password: "{{ root_password }}"
+  when: mysql_replication_role == 'master'
+  with_items: "{{groups['slave']}}"
+- name: get slave
+  mysql_replication:
+    mode: getslave
+    login_user: root
+    login_password: "{{ root_password }}"
+  ignore_errors: true
+  register: slave_status
+  when: mysql_replication_role == 'slave'
+- name: get master
+  mysql_replication:
+    mode: getmaster
+    login_user: root
+    login_password: "{{ root_password }}"
+  ignore_errors: true
+  delegate_to: '{{groups["master"][0]}}'
+  register: master_status
+  when: mysql_replication_role == 'slave'
+- name: cofigure replication on slave
+  mysql_replication:
+    mode: changemaster
+    login_user: root
+    login_password: "{{ root_password }}"
+    master_host: '{{ groups["master"][0] }}'
+    master_user: '{{ mysql_replication_user|default("slave") }}'
+    master_password: '{{ mysql_replication_pass|default("Yoyousoft007@") }}'
+    master_log_file: '{{ master_status.File }}'
+    master_log_pos: '{{ master_status.Position }}'
+  ignore_errors: True
+  when: >
+    mysql_replication_role == 'slave' and not slave_status.Is_Slave
+- name: start slave
+  mysql_replication:
+    mode: startslave
+    login_user: root
+    login_password: "{{ root_password }}"
+  when: mysql_replication_role == 'slave' and   not slave_status.Is_Slave

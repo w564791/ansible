@@ -1,0 +1,9 @@
+---
+- name: set server ID
+  set_fact:
+   mysql_slave_id: "{{ansible_default_ipv4['address'].split('.')[-1]|int + 1}}"
+  when: mysql_replication_role == 'slave'
+- name: copy my.cnf file
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf

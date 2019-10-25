@@ -1,0 +1,68 @@
+---
+- name: cp ca-csr json file
+  template:
+    src: ca-csr.j2
+    dest: /opt/ssl/ca-csr.json
+- name: cp ca-config json file
+  template:
+    src: ca-config.j2
+    dest: /opt/ssl/ca-config.json
+- name: cp admin-csr json file
+  template:
+    src: admin-csr.j2
+    dest: /opt/ssl/admin-csr.json
+- name: cp kube-controller-manager json file
+  template:
+    src: kube-controller-manager.j2
+    dest: /opt/ssl/kube-controller-manager.json
+- name: cp kubernetes-csr json file
+  template:
+    src: kubernetes-csr.j2
+    dest: /opt/ssl/kubernetes-csr.json
+- name: cp kube-proxy-csr json file
+  template:
+    src: kube-proxy-csr.j2
+    dest: /opt/ssl/kube-proxy-csr.json   
+
+- name: init CA Certificate  
+  shell: |
+    cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+    touch /opt/ssl/inited.ca.key
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.ca.key
+- name: init kubernetes  Certificate  
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes &&    touch /opt/ssl/inited.kube.key   
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.kube.key
+#- name: wait  for kubernetes.pem
+#  wait_for:
+#   path: /opt/ssl/kubernetes.pem
+- name: init admin Certificate  
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
+    touch /opt/ssl/inited.admin.key
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.admin.key
+- name: init proxy  Certificate  
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-proxy-csr.json | cfssljson -bare kube-proxy
+    touch /opt/ssl/inited.kube-proxy.key
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.kube-proxy.key
+- name: init controller  Certificate  
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-controller-manager.json | cfssljson -bare kube-controller-manager
+    touch /opt/ssl/inited.kube-controller.key 
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.kube-controller.key
+- name: verfiy Certificate
+  shell: |
+    openssl verify -CAfile ca.pem kubernetes.pem
+  args:
+    chdir: /opt/ssl

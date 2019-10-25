@@ -1,0 +1,68 @@
+---
+- name: add config for user
+  template:
+   src: kubeconfig
+   dest: ~/.kube/config
+- name: translate kube-apiserver.service
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "kube-apiserver.service", dest: "/lib/systemd/system/" }
+- name: translate kube-controller-manager.service and config file
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "kube-controller-manager.service", dest: "/lib/systemd/system/" }
+  - { src: "kube-controller-manager.kubeconfig", dest: "/etc/kubernetes/" }
+  notify:
+  - "restart kube-controller-manager"
+- name: translate  kube-scheduler.service and conffig file
+  template:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "kube-scheduler.service", dest: "/lib/systemd/system/" }
+  - { src: "kubeconfig", dest: "/etc/kubernetes/" }
+  notify:
+  - "restart kube-scheduler"
+  
+
+- name: translate master file
+  unarchive:
+   src: kubernetes-master.tar.gz
+   dest: /opt/
+- name: add kubectl file to PATH
+  copy:
+   remote_src: True
+   src: /opt/kubernetes/server/bin/kubectl
+   dest: /bin/kubectl
+   mode: 0755
+- name: wait for etcd server started
+  wait_for:
+    port: 2379
+    delay: 3
+    timeout: 5
+- name: start apiserver
+  systemd:
+    name: kube-apiserver
+    enabled: yes
+    daemon_reload: yes
+    state: started
+- name: wait for apiserver started
+  wait_for:
+    port: 6443
+    host: "{{hostvars['lb'].ansible_host}}"
+- name: start controller-manager
+  systemd:
+   name: kube-controller-manager
+   enabled: yes
+   daemon_reload: yes
+   state: started
+- name: start scheduller
+  systemd:
+   name: kube-scheduler
+   enabled: yes
+   daemon_reload: yes
+   state: started

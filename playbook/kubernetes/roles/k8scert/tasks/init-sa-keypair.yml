@@ -1,0 +1,13 @@
+---
+- name: create ssl workdir
+  file:
+   path: /opt/ssl
+   state: directory
+- name: init service account key pair
+  shell: |
+    openssl genrsa -out sa.key 4096
+    openssl rsa -in sa.key -pubout >sa.pub
+    touch /opt/ssl/inited.sa.keypair
+  args:
+    chdir: /opt/ssl
+    creates: /opt/ssl/inited.sa.keypair  

@@ -1,0 +1,37 @@
+---
+- name: set env
+  copy:
+   src: mongo.sh
+   dest: /etc/profile.d/
+- name: create mongo configure directory
+  file:
+   path: /etc/mongodb/
+   state: directory
+- name: create mongo data directory
+  file:
+   path: /opt/mongodb/data
+   state: directory
+- name: copy configure file
+  template:
+   src: mongo.conf.j2
+   dest: /etc/mongodb/mongo.conf
+- name: copy then key file
+  copy:
+   src: mongodb-keyfile
+   dest: /etc/mongodb/
+   mode: 0400
+- name: copy hosts file
+  template:
+   src: hosts.j2
+   dest: /etc/hosts
+- name: hostname set up
+  hostname: 
+   name: "{{ inventory_hostname }}"
+- name: copy auth.js file
+  template:
+   src: auth.js.j2
+   dest: /opt/mongodb/data/auth.js
+- name: copy auth.js file
+  template:
+   src: replication.js.j2
+   dest: /opt/mongodb/data/replication.js

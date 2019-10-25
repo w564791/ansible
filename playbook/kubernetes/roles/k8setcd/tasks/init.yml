@@ -1,0 +1,70 @@
+---
+- name: create kubernetes work dir
+  file:
+   path: "{{item}}"
+   state: directory
+  with_items:
+  - /etc/kubernetes
+  - /var/log/k8s
+  - ~/.kube
+- name: translate certificate files
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  with_items:
+  - { src: "/opt/ssl", dest: "/etc/kubernetes/"}
+  notify:
+  - "restart etcd"
+  - "restart kube-apiserver"
+  - "restart kube-controller-manager"
+  - "restart kube-scheduler"
+  - "restart kubelet"
+  - "restart kube-proxy"
+- name: translate  token file
+  template:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  with_items:
+  - { src: "token.csv", dest: "/etc/kubernetes/"}
+  notify:
+  - "restart kube-apiserver"
+- name: translate etcd.service
+  template:
+   src: etcd.service.j2
+   dest: /lib/systemd/system/etcd.service
+- name: download etcd file
+  get_url: 
+    url: https://github.com/coreos/etcd/releases/download/{{etcd_version}}/etcd-{{etcd_version}}-linux-amd64.tar.gz
+    dest: /opt/etcd-linux-amd64.tar.gz
+    mode: 0644
+    use_proxy: "{{use_proxy}}"
+  when: download_etcd == true
+- name: unarchive etcd file
+  unarchive:
+    src: /opt/etcd-linux-amd64.tar.gz
+    dest: /tmp/
+  when: download_etcd == true
+- name: copy etcd file
+  copy:
+    remote_src: "{{item}}"
+    dest: /bin/
+  when: download_etcd == true
+  with_items:
+  - /tmp/etcd-{{etcd_version}}-linux-amd64/etcd
+  - /tmp/etcd-{{etcd_version}}-linux-amd64/etcdctl
+- name: translate etcd archive file
+  unarchive:
+   src: etcd-linux-amd64.tar.gz
+   dest: /bin
+  when: download_etcd != true
+- name: create etcd workdir
+  file:
+   path: "{{etcd_datadir}}"
+   state: directory
+- name: start etcd server
+  systemd:
+    state: started
+    daemon_reload: yes
+    name: etcd
+    enabled: yes
+    

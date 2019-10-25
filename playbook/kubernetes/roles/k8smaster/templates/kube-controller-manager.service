@@ -1,0 +1,29 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+Wants=kube-apiserver.service
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/controller-manager
+ExecStart={{binary_home}}kube-controller-manager \
+--experimental-cluster-signing-duration {{controller_exper}} --bind-address=127.0.0.1 \
+--cluster-name=kubernetes --service-cluster-ip-range={{service_range}} \
+--kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+--authorization-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+--authentication-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+--allocate-node-cidrs=true \
+--cluster-cidr={{cluster_cidr}} \
+--cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem \
+--cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem \
+--root-ca-file=/etc/kubernetes/ssl/ca.pem \
+--leader-elect=true \
+--logtostderr=false --log-dir={{k8s_log_dir}} -v={{log_level}}  --feature-gates=RotateKubeletServerCertificate=true \
+--terminated-pod-gc-threshold=100 \
+--service-account-private-key-file=/etc/kubernetes/ssl/sa.key \
+--use-service-account-credentials=true
+Restart=always
+
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target
+

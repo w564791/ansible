@@ -1,0 +1,37 @@
+[Unit]
+Description=Etcd Server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd/
+# set GOMAXPROCS to number of processors
+ExecStart=/bin/bash -c "GOMAXPROCS=$(nproc) /bin/etcd \
+--name {{inventory_hostname}} \
+--cert-file={{cert_path}}kubernetes.pem \
+--key-file={{cert_path}}kubernetes-key.pem \
+--peer-cert-file={{cert_path}}kubernetes.pem \
+--peer-key-file={{cert_path}}kubernetes-key.pem \
+--trusted-ca-file={{cert_path}}ca.pem \
+--peer-trusted-ca-file={{cert_path}}ca.pem \
+--initial-advertise-peer-urls https://{{ansible_default_ipv4['address']}}:2380 \
+--listen-peer-urls https://{{ansible_default_ipv4['address']}}:2380 \
+--listen-client-urls https://{{ansible_default_ipv4['address']}}:2379,https://127.0.0.1:2379 \
+--advertise-client-urls https://{{ansible_default_ipv4['address']}}:2379 \
+--initial-cluster-token etcd-cluster-new \
+--initial-cluster {%for master in groups['master']%}
+{% if not loop.last %}
+{{master}}=https://{{ hostvars[master].ansible_host }}:2380,{% else %}
+{{master}}=https://{{ hostvars[master].ansible_host }}:2380 \
+{% endif %}
+{% endfor %}
+--initial-cluster-state new \
+--data-dir=/var/lib/etcd"
+#--data-dir=/home/kinglong/etcd-b.etcd"
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
