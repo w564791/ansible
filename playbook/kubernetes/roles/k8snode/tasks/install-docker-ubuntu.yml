@@ -40,6 +40,8 @@
   copy:
    src: daemon.json
    dest: /etc/docker/daemon.json
+  notify:
+  - "restart docker daemon"
 - name: wait for docker config file
   wait_for:
    path: /etc/docker/daemon.json

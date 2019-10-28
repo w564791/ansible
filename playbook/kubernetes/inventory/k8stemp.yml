@@ -3,6 +3,10 @@
   hosts: localhost
   roles:
   - {role: k8scert}
+- name: install docker daemon
+  hosts: master,node
+  roles:
+  - {role: k8sdocker}
 - name: certficate install
   hosts: master
   roles:
@@ -10,6 +14,6 @@
   - {role: k8smaster}
   - {role: k8snode}
 - name: node deploy
-  hosts: master
+  hosts: node
   roles:
   - {role: k8snode}
