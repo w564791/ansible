@@ -15,6 +15,7 @@
   - unzip
   - bzip2
   - tar
+  when: ansible_distribution == 'CentOS'
 - name: translate certificate files
   copy:
     src: "{{item.src}}"
