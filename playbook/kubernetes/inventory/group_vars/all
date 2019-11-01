@@ -21,3 +21,5 @@ use_proxy: yes
 download_etcd: no
 systemd_home: /lib/systemd/system/
 cluster_token: 2caea61c68d7a313f36e56456b6a7405
+dashboard: no
+print_admintoken: false

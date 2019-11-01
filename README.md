@@ -6,4 +6,7 @@
  5. CentOS7会升级内核到最新的LT版本,重启生效
  6. lb默认不会参与任何task,但是node通过lb连接master,单master可以直接使用master地址作为lb地址,多台master需要自行安装(haproxy,nginx等)
  7. 基于ansible2.3
+ 8. 默认addons安装metrics-server
+ 9. 默认不安装dashboard,v1.10.1版本的dashboard对K8S 1.16支持不友好,有很多的404,可以修改变量dashboard为true安装
+ 10. dashboard默认创建admin的sa,默认不输出admin token,修改变量print_admintoken为true时输出,当dashboard不安装时,该步骤跳过
 

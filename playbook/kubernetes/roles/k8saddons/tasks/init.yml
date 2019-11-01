@@ -1,0 +1,60 @@
+---
+- name: create metrics-server yaml dir
+  file:
+   path: "{{item}}"
+   state: directory
+  with_items:
+  - /opt/yaml/metrics-server
+  - /opt/yaml/dashboard
+  when:  inventory_hostname in groups['master']
+- name: translate metrics-server yaml
+  copy:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
+  - { src: "auth-delegator.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "auth-reader.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "metrics-apiservice.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "metrics-server-deployment.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "metrics-server-service.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "resource-reader.yaml", dest: "/opt/yaml/metrics-server/" }
+  - { src: "dashboard-configmap.yaml", dest: "/opt/yaml/dashboard" }
+  - { src: "dashboard-controller.yaml", dest: "/opt/yaml/dashboard" }
+  - { src: "dashboard-rbac.yaml", dest: "/opt/yaml/dashboard" }
+  - { src: "dashboard-secret.yaml", dest: "/opt/yaml/dashboard" }
+  - { src: "dashboard-service.yaml", dest: "/opt/yaml/dashboard" }
+  - { src: "cluster-admin.yaml", dest: "/opt/yaml/dashboard" }
+  when:  inventory_hostname in groups['master']
+######################
+- name: deploy metrics-server
+  shell: |
+   kubectl apply -f /opt/yaml/metrics-server/
+   touch /var/run/metrics-server.lock
+  args:
+    creates: /var/run/metrics-server.lock
+  run_once: true
+  when:  inventory_hostname in groups['master']
+#######################
+- name: deploy dashboard
+  shell: |
+   kubectl apply -f /opt/yaml/dashboard
+   touch /var/run/dashboard.lock
+  args:
+    creates: /var/run/dashboard.lock
+  run_once: true
+  when:  
+  - inventory_hostname in groups['master']
+  - dashboard == true
+- name: register admin token
+  shell: |
+   kubectl get secret -n kube-system admin-token-mjwxd -o=jsonpath='{.data.token}'|base64 -d -
+  register: admin_token
+  run_once: true
+- name: print admin token
+  debug:
+   msg: "{{admin_token.stdout}}"
+  when: 
+  - print_admintoken == true
+  - dashboard == true
+########################
+

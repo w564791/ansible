@@ -17,3 +17,7 @@
   hosts: node
   roles:
   - {role: k8snode}
+- name: deploy addons
+  hosts: master
+  roles:
+  - {role: k8saddons}
