@@ -1,4 +1,7 @@
 ---
+- name: Gather the  package facts
+  package_facts:
+    manager: auto
 - name: remove package on ubuntu 16.04
   apt:
    name: "{{item}}"
@@ -9,6 +12,8 @@
   - docker.io
   - containerd
   - runc
+  when:
+  - item  in ansible_facts.packages
 - name: install package on ubuntu 16.04
   apt:
    name: "{{item}}"
@@ -21,6 +26,8 @@
   - gnupg-agent
   - software-properties-common
   - ipset
+  when:
+  - item not in ansible_facts.packages
 - name: add repository key on ubuntu 16.04
   apt_key:
    url: https://download.docker.com/linux/ubuntu/gpg
@@ -36,6 +43,8 @@
   - docker-ce=5:18.09.9~3-0~ubuntu-xenial
   - docker-ce-cli=5:18.09.9~3-0~ubuntu-xenial
   - containerd.io
+  when:
+  - item not in ansible_facts.packages
 - name: copy docker config file
   copy:
    src: daemon.json

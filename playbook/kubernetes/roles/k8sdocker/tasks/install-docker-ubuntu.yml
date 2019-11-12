@@ -1,26 +1,40 @@
 ---
-- name: remove package on ubuntu 16.04
+- name: install python-apt on ubuntu 16.04
   apt:
-   name: "{{item}}"
-   state: absent
-  with_items:
-  - docker
-  - docker-engine
-  - docker.io
-  - containerd
-  - runc
-- name: install package on ubuntu 16.04
-  apt:
-   name: "{{item}}"
+   name: "{{item.src}}"
    state: present
    update_cache: yes
   with_items:
-  - apt-transport-https
-  - ca-certificates
-  - curl
-  - gnupg-agent
-  - software-properties-common
-  - ipset
+  - { src: "python-apt" }
+- name: Gather the  package facts
+  package_facts:
+    manager: auto
+- name: remove package on ubuntu 16.04
+  apt:
+   name: "{{item.src}}"
+   state: absent
+  with_items:
+  - { src: "docker" }
+  - { src: "docker-engine" }
+  - { src: "docker.io" }
+  - { src: "containerd" }
+  - { src: "runc" }
+  when:
+  - item.src in ansible_facts.packages
+- name: install package on ubuntu 16.04
+  apt:
+   name: "{{item.src}}"
+   state: present
+   update_cache: yes
+  with_items:
+  - { src: "apt-transport-https" }
+  - { src: "ca-certificates" }
+  - { src: "curl" }
+  - { src: "gnupg-agent" }
+  - { src: "software-properties-common" }
+  - { src: "ipset" }
+  when:
+  - item.src not in ansible_facts.packages
 - name: add repository key on ubuntu 16.04
   apt_key:
    url: https://download.docker.com/linux/ubuntu/gpg
@@ -30,12 +44,15 @@
    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
 - name: install docker package on ubuntu 16.04
   apt:
-   name: "{{item}}"
+   name: "{{item.src}}"
    state: present
+   update_cache: yes
   with_items:
-  - docker-ce=5:18.09.9~3-0~ubuntu-xenial
-  - docker-ce-cli=5:18.09.9~3-0~ubuntu-xenial
-  - containerd.io
+  - { src: "docker-ce=5:18.09.9~3-0~ubuntu-xenial" }
+  - { src: "docker-ce-cli=5:18.09.9~3-0~ubuntu-xenial" }
+  - { src: "containerd.io" }
+  when:
+  - item.src.split("=")[0] not in ansible_facts.packages
 - name: copy docker config file
   copy:
    src: daemon.json

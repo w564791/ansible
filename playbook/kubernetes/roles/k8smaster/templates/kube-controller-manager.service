@@ -1,12 +1,13 @@
 [Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-Wants=kube-apiserver.service
+After=kube-apiserver.service
 [Service]
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/controller-manager
 ExecStart={{binary_home}}kube-controller-manager \
---experimental-cluster-signing-duration {{controller_exper}} --bind-address=127.0.0.1 \
+--experimental-cluster-signing-duration {{controller_exper}} \
+--bind-address=127.0.0.1  --secure-port=10257  --address=127.0.0.1 \
 --cluster-name=kubernetes --service-cluster-ip-range={{service_range}} \
 --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
 --authorization-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \

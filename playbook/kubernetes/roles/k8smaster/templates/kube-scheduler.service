@@ -4,7 +4,8 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=kube-apiserver.service
 [Service]
 ExecStart={{binary_home}}kube-scheduler \
---leader-elect=true --address=127.0.0.1 --kubeconfig=/etc/kubernetes/kubeconfig \
+--address=127.0.0.1 --secure-port=10259 --port=0 \
+--leader-elect=true --kubeconfig=/etc/kubernetes/kubeconfig \
 --logtostderr=false --log-dir={{k8s_log_dir}} --v={{log_level}}
 Restart=on-failure
 LimitNOFILE=65536

@@ -6,6 +6,7 @@
   with_items:
   - /opt/yaml/metrics-server
   - /opt/yaml/dashboard
+  - "{{lock_dir}}"
   when:  inventory_hostname in groups['master']
 - name: translate metrics-server yaml
   copy:
@@ -18,43 +19,96 @@
   - { src: "metrics-server-deployment.yaml", dest: "/opt/yaml/metrics-server/" }
   - { src: "metrics-server-service.yaml", dest: "/opt/yaml/metrics-server/" }
   - { src: "resource-reader.yaml", dest: "/opt/yaml/metrics-server/" }
+  when:  
+  - inventory_hostname in groups['master']
+  - metrics_server == true
+- name: translate dashboard yaml
+  copy:
+   src: "{{item.src}}"
+   dest: "{{item.dest}}"
+  with_items:
   - { src: "dashboard-configmap.yaml", dest: "/opt/yaml/dashboard" }
   - { src: "dashboard-controller.yaml", dest: "/opt/yaml/dashboard" }
   - { src: "dashboard-rbac.yaml", dest: "/opt/yaml/dashboard" }
   - { src: "dashboard-secret.yaml", dest: "/opt/yaml/dashboard" }
   - { src: "dashboard-service.yaml", dest: "/opt/yaml/dashboard" }
   - { src: "cluster-admin.yaml", dest: "/opt/yaml/dashboard" }
-  when:  inventory_hostname in groups['master']
+  when:
+  - inventory_hostname in groups['master']
+  - dashboard == true
+
 ######################
 - name: deploy metrics-server
   shell: |
    kubectl apply -f /opt/yaml/metrics-server/
-   touch /var/run/metrics-server.lock
   args:
-    creates: /var/run/metrics-server.lock
+    creates: "{{lock_dir}}metrics-server.lock"
   run_once: true
-  when:  inventory_hostname in groups['master']
+  when:  
+  - inventory_hostname in groups['master']
+  - metrics_server == true
+- name: create metrics server lock file
+  file:
+    path: "{{lock_dir}}metrics-server.lock"
+    state: directory
+  when: inventory_hostname in groups['master']
 #######################
 - name: deploy dashboard
   shell: |
    kubectl apply -f /opt/yaml/dashboard
-   touch /var/run/dashboard.lock
   args:
-    creates: /var/run/dashboard.lock
+    creates: "{{lock_dir}}dashboard.lock"
   run_once: true
   when:  
   - inventory_hostname in groups['master']
   - dashboard == true
+- name: create dashboard lock file
+  file:
+    path: "{{lock_dir}}dashboard.lock"
+    state: directory
+  when: inventory_hostname in groups['master']
 - name: register admin token
   shell: |
    kubectl get secret -n kube-system admin-token-mjwxd -o=jsonpath='{.data.token}'|base64 -d -
   register: admin_token
   run_once: true
+  when: 
+  - print_admintoken == true
+  - dashboard == true
 - name: print admin token
   debug:
    msg: "{{admin_token.stdout}}"
   when: 
   - print_admintoken == true
   - dashboard == true
-########################
-
+########################prometheus###
+- name: unarchive prometheus file
+  unarchive:
+   src: prometheus.tar.gz
+   dest: /opt/yaml/
+  when:  inventory_hostname in groups['master']
+- name: translate prometheus Monitor   files
+  template:
+   src: "{{item}}"
+   dest: /opt/yaml/prometheus/
+  with_items:
+  - prometheus-serviceMonitorETCD.yaml
+  - prometheus-serviceMonitor-controler-scheduler.yaml
+  when:
+  - inventory_hostname in groups['master']
+  - metrics_server != true
+- name: deploy prometheus operator
+  shell: |
+   kubectl apply -f /opt/yaml/prometheus/setup
+   kubectl apply -f /opt/yaml/prometheus
+  args:
+   creates: "{{lock_dir}}prometheus-operator.lock"
+  run_once: true
+  when:  
+  - inventory_hostname in groups['master']
+  - metrics_server != true
+- name: create caolico lock file
+  file:
+    path: "{{lock_dir}}prometheus-operator.lock"
+    state: directory
+  when: inventory_hostname in groups['master']

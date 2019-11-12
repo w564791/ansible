@@ -10,11 +10,11 @@
   - /var/lib/etcd
 - name: install unarchive package
   yum:
-   name: "{{item}}"
+   name: "{{item.src}}"
   with_items:
-  - unzip
-  - bzip2
-  - tar
+  - { src: "unzip" }
+  - { src: "bzip2" }
+  - { src: "tar" }
   when: ansible_distribution == 'CentOS'
 - name: translate certificate files
   copy:
