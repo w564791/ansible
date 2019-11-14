@@ -101,13 +101,14 @@
   shell: |
    kubectl apply -f /opt/yaml/prometheus/setup
    kubectl apply -f /opt/yaml/prometheus
+   /opt/yaml/prometheus/custom-metrics-api/deploy.sh
   args:
    creates: "{{lock_dir}}prometheus-operator.lock"
   run_once: true
   when:  
   - inventory_hostname in groups['master']
   - metrics_server != true
-- name: create caolico lock file
+- name: create prometheus-operator lock file
   file:
     path: "{{lock_dir}}prometheus-operator.lock"
     state: directory

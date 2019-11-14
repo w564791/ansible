@@ -1,12 +1,12 @@
 ---
-#- name: certficate install
+##- name: certficate install
 #  hosts: localhost
 #  roles:
 #  - {role: k8scert}
-#- name: install docker daemon
-#  hosts: master,node
-#  roles:
-#  - {role: k8sdocker}
+- name: install docker daemon
+  hosts: master
+  roles:
+  - {role: k8sdocker}
 #- name: certficate install
 #  hosts: master
 #  roles:
@@ -17,7 +17,7 @@
 #  hosts: node
 #  roles:
 #  - {role: k8snode}
-- name: deploy addons
-  hosts: master
-  roles:
-  - {role: k8saddons}
+#- name: deploy addons
+#  hosts: master
+#  roles:
+#  - {role: k8saddons}

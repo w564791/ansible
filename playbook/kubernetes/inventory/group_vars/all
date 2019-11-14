@@ -17,11 +17,15 @@ svc_portrange: 80-60000
 svc_mode: ipvs
 ca_exp: 87600h
 etcd_version: v3.3.17
+#use_proxy yes or other
 use_proxy: yes
+#download_etcd no or other
 download_etcd: no
 systemd_home: /lib/systemd/system/
 cluster_token: 2caea61c68d7a313f36e56456b6a7405
-dashboard: true
+#dashboard true or other
+dashboard: no
 print_admintoken: false
+#metrics_server true or false
 metrics_server: false
 lock_dir: /opt/temp/

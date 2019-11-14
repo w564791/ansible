@@ -1,4 +1,6 @@
 {
-"registry-mirrors": ["https://f4aq9dbn.mirror.aliyuncs.com"]
+"registry-mirrors": ["https://f4aq9dbn.mirror.aliyuncs.com"],
+"log-driver": "json-file",
+"exec-opts": ["native.cgroupdriver=cgroupfs"]
 }
 
