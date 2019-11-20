@@ -1,0 +1,21 @@
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+#After=docker.service
+#Requires=docker.service
+[Service]
+WorkingDirectory=/var/lib/kubelet
+ExecStart={{binary_home}}kubelet \
+--hostname-override={{ansible_ssh_host}} \
+--network-plugin=cni \
+--pod-infra-container-image=docker.io/w564791/pause:3.1 \
+--bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
+--kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+--cert-dir={{cert_path}} \
+--logtostderr=false --log-dir={{k8s_log_dir}} \
+--v=2  \
+--config=/etc/kubernetes/kubelet.yml
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+

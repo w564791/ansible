@@ -1,0 +1,12 @@
+[Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+[Service]
+ExecStart={{binary_home}}kube-proxy \
+--logtostderr=false --log-dir={{k8s_log_dir}} --v={{log_level}}   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --cluster-cidr={{service_range}} --proxy-mode={{svc_mode}} --masquerade-all --hostname-override={{ansible_ssh_host}}
+ExecStartPost=/sbin/iptables -P FORWARD ACCEPT
+Restart=on-failure
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target

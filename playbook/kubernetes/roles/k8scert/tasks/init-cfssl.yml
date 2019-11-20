@@ -1,16 +1,10 @@
 ---
-- name: download cfss binary file
+- name: download cfssl binary file
   get_url:
-    url: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
-    dest: /usr/local/bin/cfssl
+    url: "{{item.src}}"
+    dest: "{{item.dest}}"
     mode: 0744
-- name: download cfss-json binary file
-  get_url:
-    url: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
-    dest: /usr/local/bin/cfssljson
-    mode: 0744
-- name: download cfss-cert binary file
-  get_url:
-    url: "https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64"
-    dest: /usr/local/bin/cfssl-certinfo
-    mode: 0744
+  with_items:
+  - { src: "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64", dest: "/usr/local/bin/cfssl"}
+  - { src: "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64", dest: "/usr/local/bin/cfssljson"}
+  - { src: "https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64", dest: "/usr/local/bin/cfssl-certinfo"}

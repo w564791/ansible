@@ -1,0 +1,113 @@
+---
+- name: Gather the  package facts
+  package_facts:
+    manager: auto
+#- name: Print the rpm package facts
+#  debug:
+#    var: ansible_facts.packages
+- name: create docker config dir
+  file:
+   path: "{{item}}"
+   state: directory
+  with_items:
+  - /etc/docker
+- name: install unarchive package
+  yum:
+   name: "{{item.src}}"
+   update_cache: yes
+  with_items:
+  - { src: "unzip" }
+  - { src: "bzip2" }
+  - { src: "tar" }
+  - { src: "conntrack-tools" }
+  when: 
+  - item.src not in ansible_facts.packages
+- name: set selinux
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disable'
+- name: disabled firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+- name: add kernel elrepo
+  yum:
+    name:  https://www.elrepo.org/elrepo-release-7.0-4.el7.elrepo.noarch.rpm
+- name: upgrade kernel
+  yum:
+   name: kernel-lt
+   update_cache: yes
+   enablerepo: elrepo-kernel
+  when: 
+  - "'kernel-lt' not in ansible_facts.packages"
+- name: use kernel
+  shell: |
+    grub2-set-default 0
+    touch /boot/kernel4-lt.lock
+  args:
+   creates: /boot/kernel4-lt.lock
+       
+- name: remove the docker package on CentOS
+  yum:
+    name: "{{item.src}}"
+    state: absent
+  with_items:
+  - { src: "docker" }
+  - { src: "docker-client" }
+  - { src: "docker-common" }
+  - { src: "docker-latest" }
+  - { src: "docker-latest-logrotate" }
+  - { src: "docker-logrotate" }
+  - { src: "docker-engine" }
+  when: 
+  - item.src  in ansible_facts.packages
+- name: add yum-utils package on CentOS
+  yum:
+   name: "{{item.src}}"
+   state: present
+   update_cache: yes
+  with_items:
+  - { src: "yum-utils" }
+  - { src: "device-mapper-persistent-data" }
+  - { src: "lvm2" }
+  - { src: "curl" }
+  when: 
+  - item.src not  in ansible_facts.packages
+- name: add repository on CentOS
+  get_url:
+   url: https://download.docker.com/linux/centos/docker-ce.repo
+   dest: /etc/yum.repos.d/docker-ce.repo
+   
+- name: install docker 1809 on CentOS
+  yum:
+   name: "{{item.src}}"
+   state: present
+   update_cache: yes
+  with_items:
+  - { src: "docker-ce-18.09.9" }
+  - { src: "docker-ce-cli-18.09.9" }
+  - { src: "containerd.io" }
+  when: 
+  - item.src.split("-18")[0] not in ansible_facts.packages
+- name: copy docker config file
+  copy:
+   src: daemon.json
+   dest: /etc/docker/daemon.json
+  notify:
+  - "restart docker daemon"
+- name: wait for docker config file
+  wait_for:
+   path: /etc/docker/daemon.json
+   state: present
+- name: start docker daemon
+  systemd:
+   name: docker
+   state: started
+   enabled: yes
+   daemon_reload: yes
+- name: wait for docker started
+  wait_for:
+   path: /var/run/docker.sock
+   state: present

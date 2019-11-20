@@ -1,0 +1,65 @@
+---
+- name: Gather the  package facts
+  package_facts:
+    manager: auto
+- name: remove package on ubuntu 16.04
+  apt:
+   name: "{{item}}"
+   state: absent
+  with_items:
+  - docker
+  - docker-engine
+  - docker.io
+  - containerd
+  - runc
+  when:
+  - item  in ansible_facts.packages
+- name: install package on ubuntu 16.04
+  apt:
+   name: "{{item}}"
+   state: present
+   update_cache: yes
+  with_items:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+  - ipset
+  when:
+  - item not in ansible_facts.packages
+- name: add repository key on ubuntu 16.04
+  apt_key:
+   url: https://download.docker.com/linux/ubuntu/gpg
+   state: present
+- name: add repository on ubuntu 16.04
+  apt_repository:
+   repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+- name: install docker package on ubuntu 16.04
+  apt:
+   name: "{{item}}"
+   state: present
+  with_items:
+  - docker-ce=5:18.09.9~3-0~ubuntu-xenial
+  - docker-ce-cli=5:18.09.9~3-0~ubuntu-xenial
+  - containerd.io
+  when:
+  - item not in ansible_facts.packages
+- name: copy docker config file
+  copy:
+   src: daemon.json
+   dest: /etc/docker/daemon.json
+  notify:
+  - "restart docker daemon"
+- name: wait for docker config file
+  wait_for:
+   path: /etc/docker/daemon.json
+   state: present
+- name: start docker daemon
+  systemd:
+   name: docker
+   state: started
+   enabled: yes
+   daemon_reload: yes
+  
+  

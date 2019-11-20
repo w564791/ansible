@@ -1,6 +1,0 @@
----
-- name: restart mysqld
-  systemd:
-   name: mysqlds
-   state: restarted
-   daemon-reload: yes

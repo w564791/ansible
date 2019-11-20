@@ -66,3 +66,7 @@
     openssl verify -CAfile ca.pem kubernetes.pem
   args:
     chdir: /opt/ssl
+  register: certinfo
+- name: print certificate verifify info
+  debug:
+   msg: "{{certinfo.stdout}}"

@@ -1,6 +1,0 @@
----
-- name: reload firewalld
-  systemd:
-   name: firewalld
-   state: reloaded
-  when: ansible_distribution_major_version == '7' and ansible_os_family == 'RedHat'

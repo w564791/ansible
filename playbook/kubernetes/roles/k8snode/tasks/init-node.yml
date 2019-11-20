@@ -1,8 +1,14 @@
 ---
 - name: translate certificate files
   copy:
-    src: /opt/ssl
-    dest: /etc/kubernetes/
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  with_items:
+  - { src: "/opt/ssl/ca-key.pem", dest: "/etc/kubernetes/ssl/" }
+  - { src: "/opt/ssl/ca.pem", dest: "/etc/kubernetes/ssl/" }
+  - { src: "/opt/ssl/kube-proxy-key.pem", dest: "/etc/kubernetes/ssl/" }
+  - { src: "/opt/ssl/kube-proxy.pem", dest: "/etc/kubernetes/ssl/" }
+  when:  inventory_hostname in groups['node']
   notify:
   - "restart kubelet"
   - "restart kube-proxy"
@@ -16,6 +22,7 @@
   - /etc/kubernetes
   - /opt/cni
   - /opt/yaml
+  - "{{lock_dir}}"
 - name: unarchive node files
   unarchive:
     src: kubernetes-node.tar.gz
@@ -44,10 +51,15 @@
 - name: create certificatesigningrequests cluster role
   shell: |
    kubectl create clusterrolebinding kubelet-bootstrap   --clusterrole=system:node-bootstrapper   --user=kubelet-bootstrap
-   touch /var/run/clusterrolebinding.kubelet-bootstrap
   run_once: true
   args:
-   creates: /var/run/clusterrolebinding.kubelet-bootstrap
+   creates: "{{lock_dir}}clusterrolebinding.kubelet-bootstrap"
+  when: inventory_hostname in groups['master']
+- name: create certificatesigningrequests lock file
+  file:
+    path: "{{lock_dir}}clusterrolebinding.kubelet-bootstrap"
+    state: directory
+  when: inventory_hostname in groups['master']
 - name: start kubelet.service
   systemd:
    name: kubelet
@@ -60,12 +72,13 @@
   run_once: true
   when: inventory_hostname in groups['master']
   args:
-   creates: /var/run/calico_install.file
+   creates: "{{lock_dir}}calico_install.file"
 - name: create caolico lock file
   file:
-    path: /var/run/calico_install.file
+    path: "{{lock_dir}}calico_install.file"
+    state: directory
   when: inventory_hostname in groups['master']
-- name: wait for kubelet started
+- name: wait for kubelet started >>>>>>Please approve certificate on master AND continue next setup<<<<<< kubectl  certificate approve xxx
   wait_for:
    port: 10250
    host: "{{ansible_ssh_host}}"
@@ -90,4 +103,11 @@
   shell: |
    kubectl apply -f /opt/yaml/coredns.yml
   run_once: true
+  when: inventory_hostname in groups['master']
+  args:
+   creates: "{{lock_dir}}dns_install.file"
+- name: create dns lock file
+  file:
+    path: "{{lock_dir}}dns_install.file"
+    state: directory
   when: inventory_hostname in groups['master']

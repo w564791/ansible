@@ -1,0 +1,104 @@
+---
+- name: Gather the  package facts
+  package_facts:
+    manager: auto
+- name: create docker config dir
+  file:
+   path: "{{item}}"
+   state: directory
+  with_items:
+  - /etc/docker
+- name: install unarchive package
+  yum:
+   name: "{{item}}"
+  with_items:
+  - unzip
+  - bzip2
+  - tar
+  when:
+  - item not in ansible_facts.packages
+  when: inventory_hostname in groups['node']
+- name: set selinux
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disable'
+- name: disabled firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+- name: add kernel elrepo
+  yum:
+    name:  https://www.elrepo.org/elrepo-release-7.0-4.el7.elrepo.noarch.rpm
+- name: upgrade kernel
+  yum:
+   name: kernel-lt
+   update_cache: yes
+   enablerepo: elrepo-kernel
+  when:
+  - 'kernel-lt' not in ansible_facts.packages
+- name: use kernel
+  shell: |
+    grub2-set-default 0
+    touch /boot/kernel4-lt.lock
+  args:
+   creates: /boot/kernel4-lt.lock
+       
+- name: remove the docker package on CentOS
+  yum:
+    name: "{{item}}"
+    state: absent
+  with_items:
+  - docker
+  - docker-client
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate 
+  - docker-engine
+  when:
+  - item  in ansible_facts.packages
+- name: add yum-utils package on CentOS
+  yum:
+   name: "{{item}}"
+   state: present
+  with_items:
+  - yum-utils
+  - device-mapper-persistent-data
+  - lvm2
+  - curl
+  when:
+  - item not in ansible_facts.packages
+- name: add repository on CentOS
+  get_url:
+   url: https://download.docker.com/linux/centos/docker-ce.repo
+   dest: /etc/yum.repos.d/docker-ce.repo
+   
+- name: install docker 1809 on CentOS
+  yum:
+   name: "{{item}}"
+   state: present
+   update_cache: yes
+  with_items:
+  - docker-ce-18.09.9
+  - docker-ce-cli-18.09.9
+  - containerd.io
+  when:
+  - item not in ansible_facts.packages
+- name: copy docker config file
+  copy:
+   src: daemon.json
+   dest: /etc/docker/daemon.json
+  notify:
+  - "restart docker daemon"
+- name: wait for docker config file
+  wait_for:
+   path: /etc/docker/daemon.json
+   state: present
+- name: start docker daemon
+  systemd:
+   name: docker
+   state: started
+   enabled: yes
+   daemon_reload: yes
