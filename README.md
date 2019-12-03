@@ -9,4 +9,4 @@
  8. 修改默认addons不安装metrics-server,默认使用Prometheus-operator
  9. 默认安装dashboard,v1.10.1版本的dashboard对K8S 1.16支持不友好,有很多的404,可以修改变量dashboard为false取消安装
  10. dashboard默认创建admin的sa,默认不输出admin token,修改变量print_admintoken为true时输出,当dashboard不安装时,该步骤跳过
-
+ 11. 使用`kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1/"`命令查看HPA路由配置是否成功
