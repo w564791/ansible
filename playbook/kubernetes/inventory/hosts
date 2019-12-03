@@ -1,8 +1,9 @@
 [master]
-master-1 ansible_host=192.168.178.143
+master-1 ansible_host=192.168.178.142
 [node]
+node-1 ansible_host=192.168.178.140
 [loadblances]
-lb ansible_host=192.168.178.143
+lb ansible_host=192.168.178.142
 [k8scluster:children]
 master
 node
