@@ -101,6 +101,7 @@
   shell: |
    kubectl apply -f /opt/yaml/prometheus/setup
    kubectl apply -f /opt/yaml/prometheus
+   cd /opt/yaml/prometheus/custom-metrics-api/
    /opt/yaml/prometheus/custom-metrics-api/deploy.sh
   args:
    creates: "{{lock_dir}}prometheus-operator.lock"
