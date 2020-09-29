@@ -1,6 +1,6 @@
 ###
- 1. 将`ansible.cfg`放到`/etc/ansible/`目录下
- 2. 修改`ansible.cfg`里的`roles_path`变量,使其路径为当前目录的`roles目录,可以使用相对路径
+ 1. 将`ansible.cfg`放到`/etc/ansible/`目录下(或者直接在当前目录下执行playbook)
+ 2. 修改`ansible.cfg`里的`roles_path`变量,使其路径为当前目录的`roles`目录,可以使用相对路径
  3. `ansible-playbook -i inventory/hosts inventory/k8stemp.yml -s --ask-sudo-pass --timeout=222` (2.5以上的ansible使用`ansible-playbook -i inventory/hosts  inventory/k8stemp.yaml  -b --ask-become-pass --timeout=222`)所有机器均未使用root连接ssh,但是需要使用root账户,如果使用root账户连接,可不使用-s以及--ask-sudo-pass参数,普通用户需要输入密码
  4. 目前支持CentOS7以及Ubuntu16.04
  5. CentOS7会升级内核到最新的LT版本,重启生效
