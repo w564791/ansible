@@ -33,6 +33,7 @@
   - { src: "gnupg-agent" }
   - { src: "software-properties-common" }
   - { src: "ipset" }
+  - { src: "conntrack"}
   when:
   - item.src not in ansible_facts.packages
 - name: add repository key on ubuntu 16.04
